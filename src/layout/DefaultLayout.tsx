@@ -1,11 +1,21 @@
 // src/layout/DefaultLayout.tsx
-export default function DefaultLayout({
-  children,
-}: { children: React.ReactNode }) {
+import AppSidebar from "./AppSidebar";
+import AppHeader from "./AppHeader";
+import Backdrop from "./Backdrop";
+
+export default function DefaultLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-        {children}
+    <div className="flex min-h-screen">
+      {/* Sidebar fijo/colapsable */}
+      <AppSidebar />
+
+      {/* Capa para cerrar sidebar en móvil */}
+      <Backdrop />
+
+      {/* Contenido principal */}
+      <div className="flex-1">
+        <AppHeader />
+        <main className="p-6 xl:p-10">{children}</main>
       </div>
     </div>
   );

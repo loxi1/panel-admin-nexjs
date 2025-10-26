@@ -1,24 +1,18 @@
-import { Outfit } from 'next/font/google';
-import './globals.css';
+// src/app/layout.tsx
+import type { Metadata } from "next";
+import "./globals.css";
+import { SidebarProvider } from "@/context/SidebarContext";
 
-import { SidebarProvider } from '@/context/SidebarContext';
-import { ThemeProvider } from '@/context/ThemeContext';
+export const metadata: Metadata = {
+  title: "Panel",
+  description: "Admin",
+};
 
-const outfit = Outfit({
-  subsets: ["latin"],
-});
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${outfit.className} dark:bg-gray-900`}>
-        <ThemeProvider>
-          <SidebarProvider>{children}</SidebarProvider>
-        </ThemeProvider>
+    <html lang="es" suppressHydrationWarning>
+      <body className="min-h-screen bg-gray-50 antialiased dark:bg-[#0B1221]">
+        <SidebarProvider>{children}</SidebarProvider>
       </body>
     </html>
   );
