@@ -1,3 +1,4 @@
+// src/app/api/usuarios/route.ts
 import { NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
 import { cookies } from "next/headers";
@@ -11,14 +12,13 @@ export async function GET() {
 
   const pool = await getPool();
   const rs = await pool.request().query(`
-    SELECT TOP 200
+    SELECT TOP 50
       COD_USUARIO,
       PRIMER_NOMBRE,
       SEGUNDO_NOMBRE,
       APELLIDO_PATERNO,
       APELLIDO_MATERNO,
-      CORREO_ELECTRONICO,
-      COD_ESTADO_REGISTRO
+      CORREO_ELECTRONICO
     FROM dbo.USUARIO WITH (NOLOCK)
     ORDER BY COD_USUARIO
   `);
