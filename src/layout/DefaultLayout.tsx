@@ -1,6 +1,7 @@
 // src/layout/DefaultLayout.tsx
 import AppSidebar from "./AppSidebar";
 import AppHeader from "./AppHeader";
+import TopProgress from "@/components/common/TopProgress";
 
 export default function DefaultLayout({
   children,
@@ -16,7 +17,7 @@ export default function DefaultLayout({
       <main className="min-h-screen lg:pl-64">
         {/* Barra superior (una sola vez) */}
         <AppHeader />
-
+        <TopProgress />
         {/* Contenedor de página */}
         <div className="mx-auto max-w-7xl p-6">{children}</div>
       </main>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
 import { LayoutDashboard, Users, Boxes } from "lucide-react";
+import Image from "next/image";
 
 // --- Íconos ligeros (SVG inline) ---
 const DashboardIcon = (
@@ -153,10 +154,21 @@ const AppSidebar: React.FC = () => {
 
 
       <div className="flex items-center justify-center px-6 py-5">
-        <img
-          src="/images/logo.svg"
-          alt="Autorepuestos Alvarado S.A.C."
-          className="h-10 w-auto"
+        <Image
+          src="/images/logo/logo.svg"     // logo claro
+          alt="ARASAC"
+          width={160}
+          height={36}
+          priority
+          className="block dark:hidden h-9 w-auto"
+        />
+        <Image
+          src="/images/logo/auth-dark.svg" // logo oscuro
+          alt="ARASAC"
+          width={160}
+          height={36}
+          priority
+          className="hidden dark:block h-9 w-auto"
         />
       </div>
 
