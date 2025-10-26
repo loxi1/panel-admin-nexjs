@@ -1,9 +1,8 @@
 import DefaultLayout from "@/layout/DefaultLayout";
 
 async function getData() {
-  const r = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/api/usuarios`, {
-    cache: "no-store",
-  });
+  // ✅ relative path para que se envíen cookies al API
+  const r = await fetch("/api/usuarios", { cache: "no-store" });
   if (!r.ok) return [];
   return r.json();
 }
@@ -47,7 +46,9 @@ export default async function UsuariosPage() {
               {rows.map((u) => (
                 <tr key={u.COD_USUARIO}>
                   <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{u.COD_USUARIO}</td>
-                  <td className="py-3 pr-4 text-sm text-gray-800 dark:text-gray-200">{u.name ?? `${u.PRIMER_NOMBRE ?? ""} ${u.APELLIDO_PATERNO ?? ""}`.trim()}</td>
+                  <td className="py-3 pr-4 text-sm text-gray-800 dark:text-gray-200">
+                    {u.name ?? `${u.PRIMER_NOMBRE ?? ""} ${u.APELLIDO_PATERNO ?? ""}`.trim()}
+                  </td>
                   <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{u.email ?? u.CORREO_ELECTRONICO}</td>
                   <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{u.rol ?? u.rol_id ?? "-"}</td>
                   <td className="py-3 pr-4 text-sm">
@@ -61,6 +62,7 @@ export default async function UsuariosPage() {
                   </td>
                 </tr>
               ))}
+
               {rows.length === 0 && (
                 <tr>
                   <td colSpan={5} className="py-10 text-center text-sm text-gray-500 dark:text-gray-400">
