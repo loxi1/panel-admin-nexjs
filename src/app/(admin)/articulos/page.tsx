@@ -1,82 +1,71 @@
 import DefaultLayout from "@/layout/DefaultLayout";
 import PageHeader from "@/components/common/PageHeader";
-import { headers } from "next/headers";
 
 async function getData() {
-  const h = await headers();
-  const host = h.get("host")!;
-  // Si estás en Vercel u otro proxy pon HTTPS; en local usa HTTP
-  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
-  const base = `${proto}://${host}`;
-
-  const r = await fetch(`${base}/api/articulos`, {
+  const base =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.VERCEL_URL ||
+    "http://localhost:3000";
+  const res = await fetch(`${base}/api/articulos`, {
     cache: "no-store",
-    headers: {
-      // reenviamos cookie para que la middleware/route te identifique
-      cookie: h.get("cookie") ?? "",
-    },
+    headers: { "x-req-from": "page" },
   });
-  if (!r.ok) return [];
-  return r.json();
+  if (!res.ok) throw new Error("Error al cargar artículos");
+  return res.json();
 }
 
 export default async function ArticulosPage() {
-  const rows: any[] = await getData();
+  const data: any[] = await getData();
 
   return (
     <DefaultLayout>
-      <PageHeader
-        title="Artículos"
-        subtitle="Listado desde SQL Server."
-      />
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">Artículos</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Listado desde SQL Server.</p>
-      </div>
+      <PageHeader title="Artículos" subtitle="Listado desde SQL Server." />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-gray-500 dark:text-gray-400">{rows.length} resultado(s)</div>
-          <div className="relative w-full sm:w-72">
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        {/* Topbar de tabla */}
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800 sm:px-6">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {data.length} resultado(s)
+          </span>
+
+          <div className="relative">
             <input
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-4 ring-brand-500/20 dark:border-gray-700 dark:bg-transparent dark:text-white"
+              className="h-9 w-72 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none ring-brand-500/20 focus:border-brand-500 focus:ring-4 dark:border-gray-700 dark:bg-transparent dark:text-white"
               placeholder="Buscar por descripción…"
             />
-            <span className="pointer-events-none absolute right-3 top-2.5 text-gray-400">⌘K</span>
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 select-none text-xs text-gray-400">
+              ⌘K
+            </span>
           </div>
         </div>
 
+        {/* Tabla */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full text-left text-sm">
             <thead className="bg-gray-50/70 dark:bg-white/[0.02]">
-              <tr className="border-b border-gray-200 text-gray-500 dark:border-gray-800 dark:text-gray-400">
-                <th className="py-3 pr-4 text-xs font-medium">FAMILIA</th>
-                <th className="py-3 pr-4 text-xs font-medium">CLASE</th>
-                <th className="py-3 pr-4 text-xs font-medium">SUBCLASE</th>
-                <th className="py-3 pr-4 text-xs font-medium">CÓD. ITEM</th>
-                <th className="py-3 pr-4 text-xs font-medium">STANDARD</th>
-                <th className="py-3 pr-4 text-xs font-medium">DESCRIPCIÓN</th>
+              <tr className="text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 font-medium">FAMILIA</th>
+                <th className="px-6 py-3 font-medium">CLASE</th>
+                <th className="px-6 py-3 font-medium">SUBCLASE</th>
+                <th className="px-6 py-3 font-medium">CÓD. ITEM</th>
+                <th className="px-6 py-3 font-medium">STANDARD</th>
+                <th className="px-6 py-3 font-medium">DESCRIPCIÓN</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {rows.map((r) => (
-                <tr key={`${r.COD_ITEM_ARTICULO}-${r.COD_FAMILIA}-${r.COD_CLASE}-${r.COD_SUBCLASE}`}>
-                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{r.DSC_FAMILIA}</td>
-                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{r.DSC_CLASE}</td>
-                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{r.DSC_SUBCLASE}</td>
-                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{r.COD_ITEM_ARTICULO}</td>
-                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{r.COD_STANDARD}</td>
-                  <td className="py-3 pr-4 text-sm text-gray-800 dark:text-gray-200">{r.DESCRIPCION_ARTICULO}</td>
+            <tbody>
+              {data.map((r, i) => (
+                <tr
+                  key={`${r.COD_ITEM_ARTICULO}-${i}`}
+                  className="border-b border-gray-100 last:border-0 dark:border-white/5"
+                >
+                  <td className="px-6 py-3">{r.DSC_FAMILIA}</td>
+                  <td className="px-6 py-3">{r.DSC_CLASE}</td>
+                  <td className="px-6 py-3">{r.DSC_SUBCLASE}</td>
+                  <td className="px-6 py-3">{r.COD_ITEM_ARTICULO}</td>
+                  <td className="px-6 py-3">{r.COD_STANDARD}</td>
+                  <td className="px-6 py-3">{r.DESCRIPCION_ARTICULO}</td>
                 </tr>
               ))}
-
-              {rows.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-10 text-center text-sm text-gray-500 dark:text-gray-400">
-                    Sin datos.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>

@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 
 export default function PageHeader({
@@ -21,7 +20,6 @@ export default function PageHeader({
           <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
         ) : null}
       </div>
-
       {right ? <div className="flex items-center gap-3">{right}</div> : null}
     </div>
   );
