@@ -1,55 +1,63 @@
-// src/app/(admin)/articulos/page.tsx
-import React from "react";
+import DefaultLayout from "@/layout/DefaultLayout";
 
-async function getData() {
+type Articulo = {
+  COD_FAMILIA: number;
+  DSC_FAMILIA: string;
+  COD_CLASE: number;
+  DSC_CLASE: string;
+  COD_SUBCLASE: number;
+  DSC_SUBCLASE: string;
+  COD_ITEM_ARTICULO: number;
+  COD_STANDARD: string | null;
+  DESCRIPCION_ARTICULO: string;
+};
+
+async function getData(): Promise<Articulo[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/articulos`, {
+    method: "GET",
     cache: "no-store",
-    credentials: "include",
+    // cookies HTTPOnly via fetch del servidor -> se envían solas
   });
-  if (!res.ok) throw new Error("No se pudo cargar Artículos");
-  return res.json() as Promise<any[]>;
+  if (!res.ok) throw new Error("No se pudo cargar artículos");
+  return res.json();
 }
 
 export default async function ArticulosPage() {
-  const rows = await getData();
+  const data = await getData();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold">Artículos</h1>
+    <DefaultLayout>
+      <div className="mb-5">
+        <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">Artículos</h1>
+        <p className="text-gray-500 dark:text-gray-400">Listado desde SQL Server.</p>
+      </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-900/40">
-            <tr className="[&>th]:px-4 [&>th]:py-3 [&>th]:text-left [&>th]:font-semibold">
-              <th>Familia</th>
-              <th>Clase</th>
-              <th>Subclase</th>
-              <th>Item</th>
-              <th>Standard</th>
-              <th>Descripción</th>
+      <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-800">
+        <table className="min-w-full text-left text-sm text-gray-700 dark:text-gray-300">
+          <thead className="bg-gray-50 text-gray-600 dark:bg-white/5 dark:text-gray-400">
+            <tr>
+              <th className="px-4 py-3">Familia</th>
+              <th className="px-4 py-3">Clase</th>
+              <th className="px-4 py-3">Subclase</th>
+              <th className="px-4 py-3">Cód. Item</th>
+              <th className="px-4 py-3">Standard</th>
+              <th className="px-4 py-3">Descripción</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200/80 dark:divide-gray-800/80">
-            {rows.map((r, i) => (
-              <tr key={i} className="hover:bg-gray-50/70 dark:hover:bg-white/5">
+          <tbody>
+            {data.map((r, i) => (
+              <tr key={`${r.COD_ITEM_ARTICULO}-${i}`} className="border-t border-gray-100 dark:border-white/10">
                 <td className="px-4 py-2">{r.DSC_FAMILIA}</td>
                 <td className="px-4 py-2">{r.DSC_CLASE}</td>
                 <td className="px-4 py-2">{r.DSC_SUBCLASE}</td>
-                <td className="px-4 py-2 tabular-nums">{r.COD_ITEM_ARTICULO}</td>
-                <td className="px-4 py-2">{r.COD_STANDARD}</td>
+                <td className="px-4 py-2 font-mono">{r.COD_ITEM_ARTICULO}</td>
+                <td className="px-4 py-2">{r.COD_STANDARD ?? "-"}</td>
                 <td className="px-4 py-2">{r.DESCRIPCION_ARTICULO}</td>
               </tr>
             ))}
-            {rows.length === 0 && (
-              <tr>
-                <td className="px-4 py-6 text-center text-gray-500 dark:text-gray-400" colSpan={6}>
-                  Sin registros
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
-    </div>
+    </DefaultLayout>
   );
 }

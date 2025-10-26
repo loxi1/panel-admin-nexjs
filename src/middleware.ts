@@ -1,61 +1,44 @@
-import type { NextRequest } from "next/server";
+// src/middleware.ts
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 const SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
-// Ajusta según las rutas reales de tu TailAdmin
-const PUBLIC_PATHS = [
-  "/login",
-  "/register",
-  "/api/auth/login",
-  "/api/auth/register",
-  "/favicon.ico",
-  "/favicon.svg",
-  "/robots.txt",
-  "/sitemap.xml",
-  "/_next",              // assets
-  "/images", "/fonts",   // estáticos
-  "/.well-known",        // ese json de chrome
-];
+export async function middleware(req: Request) {
+  const url = new URL((req as any).url);
+  const path = url.pathname;
 
-const PROTECTED_PREFIXES = [
-  "/dashboard",
-  "/ecommerce",
-  "/tables",
-  "/users",
-  "/reports",
-  "/api", // si quieres proteger API (excepto auth)
-];
-
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  // Público
-  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+  // Excepciones
+  if (path.startsWith("/api/auth")) return NextResponse.next();
+  if (path.startsWith("/_next") || path.startsWith("/favicon") || path.startsWith("/assets")) {
     return NextResponse.next();
   }
 
-  // ¿Necesita auth?
-  const needsAuth = PROTECTED_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
+  // Rutas que requieren auth (URLs reales)
+  const needsAuth =
+    path.startsWith("/dashboard") ||
+    path.startsWith("/articulos") ||
+    path.startsWith("/usuarios") ||
+    path.startsWith("/api");
+
   if (!needsAuth) return NextResponse.next();
 
-  const token = req.cookies.get("auth")?.value;
-  if (!token) {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
+  const token = (req as any).cookies.get?.("auth")?.value;
+  if (!token) return NextResponse.redirect(new URL("/login", url));
 
   try {
     await jwtVerify(token, new TextEncoder().encode(SECRET));
     return NextResponse.next();
   } catch {
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(new URL("/login", url));
   }
 }
 
-// Matchea todo y filtramos dentro (más simple de mantener)
 export const config = {
-  matcher: ["/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/articulos/:path*",
+    "/usuarios/:path*",
+    "/api/:path*",
+  ],
 };

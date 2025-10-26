@@ -28,6 +28,33 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
+    name: "Dashboard",
+    path: "/dashboard",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" className="shrink-0">
+        <path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+      </svg>
+    ),
+  },
+  {
+    name: "Artículos",
+    path: "/articulos",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" className="shrink-0">
+        <path fill="currentColor" d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h12v2H3v-2z"/>
+      </svg>
+    ),
+  },
+  {
+    name: "Usuarios",
+    path: "/usuarios",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" className="shrink-0">
+        <path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5S5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05C16.66 13.78 18 14.7 18 16.5V19h6v-2.5c0-2.33-4.67-3.5-8-3.5z"/>
+      </svg>
+    ),
+  },
+  {
     icon: <GridIcon />,
     name: "Dashboard",
     subItems: [{ name: "Ecommerce", path: "/", pro: false }],
@@ -290,7 +317,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200
         ${
           isExpanded || isMobileOpen
             ? "w-[290px]"
