@@ -22,7 +22,7 @@ export default function LoginPage() {
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error || "Error de autenticación");
-      router.replace("/admin"); // tu dashboard inicial
+      router.replace("/dashboard"); // tu dashboard inicial
     } catch (e: any) {
       setErr(e.message);
     } finally {
