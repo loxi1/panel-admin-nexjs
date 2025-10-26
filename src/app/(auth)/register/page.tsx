@@ -1,118 +1,89 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function RegisterPage() {
   const [cod, setCod] = useState("");
-  const [pass1, setPass1] = useState("");
-  const [pass2, setPass2] = useState("");
+  const [password, setPassword] = useState("");
+  const [ok, setOk] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [okMsg, setOkMsg] = useState<string | null>(null);
-  const router = useRouter();
 
-  async function onSubmit(e: FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setOkMsg(null);
-    if (pass1 !== pass2) {
-      setError("Las contraseñas no coinciden");
-      return;
-    }
-    if (pass1.length < 6) {
-      setError("Usa mínimo 6 caracteres");
-      return;
-    }
-    setLoading(true);
+    setOk(null); setErr(null); setLoading(true);
     try {
-      const res = await fetch("/api/auth/register", {
+      const r = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod_usuario: cod.trim(), new_password: pass1 }),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ cod_usuario: cod, new_password: password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "No se pudo registrar");
-      setOkMsg("¡Contraseña creada! Ahora puedes iniciar sesión.");
-      setTimeout(() => router.push("/(auth)/login"), 1200);
-    } catch (err: any) {
-      setError(err.message);
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error || "No se pudo registrar");
+      setOk("Contraseña establecida. Ya puedes iniciar sesión.");
+      setCod(""); setPassword("");
+    } catch (e: any) {
+      setErr(e.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm p-8">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white/90">Configura tu acceso 🔐</h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">Valida tu código y crea tu contraseña</p>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#0B1221]">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-white/[0.04]">
+        <h1 className="mb-1 text-2xl font-semibold text-gray-800 dark:text-white">Registro</h1>
+        <p className="mb-6 text-gray-500 dark:text-gray-400">
+          Confirma tu código y define una nueva contraseña.
+        </p>
 
-          <form onSubmit={onSubmit} className="mt-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Código de usuario</label>
-              <input
-                className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500"
-                value={cod}
-                onChange={(e) => setCod(e.target.value)}
-                placeholder="Ej: VTAENR1"
-                required
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nueva contraseña</label>
-              <input
-                className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500"
-                type="password"
-                value={pass1}
-                onChange={(e) => setPass1(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Repite la contraseña</label>
-              <input
-                className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500"
-                type="password"
-                value={pass2}
-                onChange={(e) => setPass2(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </div>
+        {ok && (
+          <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-800/40 dark:bg-emerald-500/10 dark:text-emerald-300">
+            {ok}
+          </div>
+        )}
+        {err && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800/40 dark:bg-red-500/10 dark:text-red-300">
+            {err}
+          </div>
+        )}
 
-            {error && (
-              <div className="rounded-lg bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-200 px-3 py-2 text-sm">
-                {error}
-              </div>
-            )}
-            {okMsg && (
-              <div className="rounded-lg bg-green-50 text-green-700 dark:bg-emerald-900/30 dark:text-emerald-200 px-3 py-2 text-sm">
-                {okMsg}
-              </div>
-            )}
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Código</label>
+            <input
+              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none ring-brand-500/20 focus:border-brand-500 focus:ring-4 dark:border-gray-700 dark:bg-transparent dark:text-white"
+              value={cod}
+              onChange={(e) => setCod(e.target.value)}
+              placeholder="Ej: VTAENR1"
+            />
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full inline-flex justify-center items-center rounded-lg bg-brand-500 text-white font-medium py-2.5 hover:bg-brand-600 disabled:opacity-60"
-            >
-              {loading ? "Guardando..." : "Crear contraseña"}
-            </button>
-          </form>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nueva contraseña</label>
+            <input
+              type="password"
+              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none ring-brand-500/20 focus:border-brand-500 focus:ring-4 dark:border-gray-700 dark:bg-transparent dark:text-white"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
 
-          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            ¿Ya tienes contraseña?{" "}
-            <Link href="/(auth)/login" className="text-brand-600 hover:underline">
-              Inicia sesión
-            </Link>
-          </p>
-        </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex w-full items-center justify-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            {loading ? "Guardando..." : "Guardar"}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          ¿Ya tienes cuenta?{" "}
+          <a href="/login" className="text-brand-600 hover:underline">Inicia sesión</a>
+        </p>
       </div>
-    </main>
+    </div>
   );
 }

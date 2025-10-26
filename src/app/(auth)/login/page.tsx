@@ -1,90 +1,83 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import Link from "next/link";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [cod, setCod] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [err, setErr] = useState<string | null>(null);
 
-  async function onSubmit(e: FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setErr(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const r = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cod_usuario: cod.trim(), password }),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ cod_usuario: cod, password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Error al iniciar sesión");
-      router.push("/(admin)");
-    } catch (err: any) {
-      setError(err.message);
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error || "Error de autenticación");
+      router.replace("/admin"); // tu dashboard inicial
+    } catch (e: any) {
+      setErr(e.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm p-8">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white/90">Bienvenido 👋</h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">Inicia sesión con tu usuario corporativo</p>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#0B1221]">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-white/[0.04]">
+        <h1 className="mb-1 text-2xl font-semibold text-gray-800 dark:text-white">Iniciar sesión</h1>
+        <p className="mb-6 text-gray-500 dark:text-gray-400">Accede con tu código de usuario.</p>
 
-          <form onSubmit={onSubmit} className="mt-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Código de usuario</label>
-              <input
-                className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500"
-                value={cod}
-                onChange={(e) => setCod(e.target.value)}
-                placeholder="Ej: VTAENR1"
-                required
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña</label>
-              <input
-                className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </div>
+        {err && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800/40 dark:bg-red-500/10 dark:text-red-300">
+            {err}
+          </div>
+        )}
 
-            {error && (
-              <div className="rounded-lg bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-200 px-3 py-2 text-sm">
-                {error}
-              </div>
-            )}
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Código</label>
+            <input
+              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none ring-brand-500/20 focus:border-brand-500 focus:ring-4 dark:border-gray-700 dark:bg-transparent dark:text-white"
+              value={cod}
+              onChange={(e) => setCod(e.target.value)}
+              placeholder="Ej: VTAENR1"
+            />
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full inline-flex justify-center items-center rounded-lg bg-brand-500 text-white font-medium py-2.5 hover:bg-brand-600 disabled:opacity-60"
-            >
-              {loading ? "Ingresando..." : "Ingresar"}
-            </button>
-          </form>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña</label>
+            <input
+              type="password"
+              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none ring-brand-500/20 focus:border-brand-500 focus:ring-4 dark:border-gray-700 dark:bg-transparent dark:text-white"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
 
-          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            ¿Primera vez?{" "}
-            <Link href="/(auth)/register" className="text-brand-600 hover:underline">
-              Configura tu contraseña
-            </Link>
-          </p>
-        </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex w-full items-center justify-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            {loading ? "Ingresando..." : "Ingresar"}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          ¿Primera vez?{" "}
+          <a href="/register" className="text-brand-600 hover:underline">Regístrate</a>
+        </p>
       </div>
-    </main>
+    </div>
   );
 }
