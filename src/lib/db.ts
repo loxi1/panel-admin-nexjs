@@ -1,27 +1,26 @@
 // src/lib/db.ts
-import sql, { ConnectionPool } from 'mssql';
+import sql from 'mssql';
 
-let pool: ConnectionPool | null = null;
+const cfg: sql.config = {
+  server: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || 14333), // ← el puerto que abriste en Docker
+  user: process.env.DB_USER || 'sa',
+  password: process.env.DB_PASSWORD || 'Smart2052!',
+  database: process.env.DB_NAME || 'BD_ARASAC',
+  options: {
+    encrypt: false,                 // SQL 2008: SIN TLS moderno
+    trustServerCertificate: true,   // útil en desarrollo/on-prem
+    enableArithAbort: true,
+  },
+  pool: { max: 10, min: 1, idleTimeoutMillis: 30000 },
+};
+
+let pool: sql.ConnectionPool | null = null;
 
 export async function getPool() {
-  if (pool) return pool;
-
-  pool = await new sql.ConnectionPool({
-    server: process.env.MSSQL_HOST!,
-    port: Number(process.env.MSSQL_PORT || 1433),
-    user: process.env.MSSQL_USER!,
-    password: process.env.MSSQL_PASS!,
-    database: process.env.MSSQL_DB!,
-    options: {
-      encrypt: false,       // en dev container no hace falta
-      trustServerCertificate: true
-    }
-  }).connect();
-
-  pool.on('error', (err) => {
-    console.error('MSSQL pool error', err);
-    pool = null;
-  });
-
+  if (pool && pool.connected) return pool;
+  if (pool && pool.connecting) return pool;
+  pool = new sql.ConnectionPool(cfg);
+  await pool.connect();
   return pool;
 }
