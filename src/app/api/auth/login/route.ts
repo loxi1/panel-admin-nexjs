@@ -54,7 +54,9 @@ export async function POST(req: Request) {
     });
 
     return res;
-  } catch {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  } catch (err: any)  {
+    console.error('[LOGIN] Error:', err);
+    const msg = process.env.NODE_ENV !== 'production' ? String(err?.message || err) : 'Server error';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
