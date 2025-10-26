@@ -1,23 +1,25 @@
-"use client";
+// src/layout/DefaultLayout.tsx
+import AppSidebar from "./AppSidebar";
+import AppHeader from "./AppHeader";
 
-import AppHeader from "@/layout/AppHeader";
-import AppSidebar from "@/layout/AppSidebar";
-import Backdrop from "@/layout/Backdrop";
-import { SidebarProvider } from "@/context/SidebarContext";
-
-export default function DefaultLayout({ children }: { children: React.ReactNode }) {
+export default function DefaultLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen bg-gray-50 dark:bg-[#0B1221]">
-        <AppSidebar />
-        <div className="flex min-h-screen flex-1 flex-col">
-          <AppHeader />
-          <main className="mx-auto w-full max-w-screen-2xl p-4 sm:p-6">
-            {children}
-          </main>
-        </div>
-        <Backdrop />
-      </div>
-    </SidebarProvider>
+    <div className="min-h-screen bg-gray-50 text-gray-800 dark:bg-[#0B1221] dark:text-white">
+      {/* Sidebar fijo a la izquierda */}
+      <AppSidebar />
+
+      {/* Contenido principal: reserva el ancho del sidebar en desktop */}
+      <main className="min-h-screen lg:pl-64">
+        {/* Barra superior (una sola vez) */}
+        <AppHeader />
+
+        {/* Contenedor de página */}
+        <div className="mx-auto max-w-7xl p-6">{children}</div>
+      </main>
+    </div>
   );
 }

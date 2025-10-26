@@ -150,8 +150,14 @@ const AppSidebar: React.FC = () => {
       className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-sm transition-transform dark:bg-[#0B1221]
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
     >
-      <div className="flex h-16 items-center justify-center border-b border-gray-100 dark:border-gray-800">
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-white">TailAdmin</h1>
+
+
+      <div className="flex items-center justify-center px-6 py-5">
+        <img
+          src="/images/logo.svg"
+          alt="Autorepuestos Alvarado S.A.C."
+          className="h-10 w-auto"
+        />
       </div>
 
       <nav className="p-4 overflow-y-auto">

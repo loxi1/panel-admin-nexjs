@@ -9,6 +9,7 @@ export default function AppHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-100 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-[#0B1221]/60">
+
       <div className="mx-auto flex h-14 max-w-screen-2xl items-center justify-between px-4 sm:px-6">
         {/* Botón pequeño para abrir el sidebar en móvil */}
         <button
@@ -22,7 +23,7 @@ export default function AppHeader() {
         </button>
 
         {/* Marca */}
-        <div className="font-semibold text-gray-800 dark:text-white">TailAdmin</div>
+        <div className="font-semibold text-gray-800 dark:text-white">ARASAC</div>
 
         {/* Acciones derechas */}
         <div className="flex items-center gap-3">

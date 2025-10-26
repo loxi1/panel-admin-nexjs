@@ -1,16 +1,22 @@
 import DefaultLayout from "@/layout/DefaultLayout";
 import PageHeader from "@/components/common/PageHeader";
+import { cookies, headers } from "next/headers";
 
 async function getData() {
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.VERCEL_URL ||
-    "http://localhost:3000";
-  const res = await fetch(`${base}/api/usuarios`, {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth")?.value ?? "";
+
+  const hdrs = await headers();
+  const host = hdrs.get("host")!;
+  const proto = hdrs.get("x-forwarded-proto") ?? "http";
+  const url = `${proto}://${host}/api/usuarios`;
+
+  const res = await fetch(url, {
+    headers: { cookie: `auth=${token}` },
     cache: "no-store",
-    headers: { "x-req-from": "page" },
   });
-  if (!res.ok) throw new Error("Error al cargar usuarios");
+
+  if (!res.ok) throw new Error(`API /api/usuarios ${res.status}`);
   return res.json();
 }
 
@@ -19,49 +25,52 @@ export default async function UsuariosPage() {
 
   return (
     <DefaultLayout>
-      <PageHeader title="Usuarios" subtitle="Listado de usuarios del sistema." />
-
-      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800 sm:px-6">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {rows.length} usuario(s)
-          </span>
-          <div className="relative">
+      <PageHeader
+        title="Usuarios"
+        subtitle="Listado de usuarios del sistema."
+        actionsRight={
+          <div className="hidden md:block">
             <input
-              className="h-9 w-72 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none ring-brand-500/20 focus:border-brand-500 focus:ring-4 dark:border-gray-700 dark:bg-transparent dark:text-white"
+              className="rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5"
               placeholder="Buscar por código, nombre, email…"
             />
-            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 select-none text-xs text-gray-400">
-              ⌘K
-            </span>
           </div>
-        </div>
+        }
+      />
 
+      <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-0 dark:border-white/10 dark:bg-white/[0.03]">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50/70 dark:bg-white/[0.02]">
-              <tr className="text-gray-500 dark:text-gray-400">
-                <th className="px-6 py-3 font-medium">CÓDIGO</th>
-                <th className="px-6 py-3 font-medium">NOMBRE</th>
-                <th className="px-6 py-3 font-medium">EMAIL</th>
-                <th className="px-6 py-3 font-medium">ROL</th>
-                <th className="px-6 py-3 font-medium">ESTADO</th>
+            <thead className="border-b border-gray-100 text-gray-500 dark:border-white/10 dark:text-gray-400">
+              <tr>
+                <th className="px-5 py-3">CÓDIGO</th>
+                <th className="px-5 py-3">NOMBRE</th>
+                <th className="px-5 py-3">EMAIL</th>
+                <th className="px-5 py-3">ROL</th>
+                <th className="px-5 py-3">ESTADO</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((u) => (
-                <tr key={u.id} className="border-b border-gray-100 last:border-0 dark:border-white/5">
-                  <td className="px-6 py-3">{u.cod}</td>
-                  <td className="px-6 py-3">{u.name}</td>
-                  <td className="px-6 py-3">{u.email}</td>
-                  <td className="px-6 py-3">-</td>
-                  <td className="px-6 py-3">
-                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+              {rows.map((u, i) => (
+                <tr key={`${u.COD_USUARIO}-${i}`} className="border-b border-gray-50 dark:border-white/5">
+                  <td className="px-5 py-3 font-mono">{u.COD_USUARIO}</td>
+                  <td className="px-5 py-3">{u.name}</td>
+                  <td className="px-5 py-3">{u.email}</td>
+                  <td className="px-5 py-3">-</td>
+                  <td className="px-5 py-3">
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
                       Activo
                     </span>
                   </td>
                 </tr>
               ))}
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
+                    Sin resultados
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
