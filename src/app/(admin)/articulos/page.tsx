@@ -1,4 +1,5 @@
 import DefaultLayout from "@/layout/DefaultLayout";
+import PageHeader from "@/components/common/PageHeader";
 import { headers } from "next/headers";
 
 async function getData() {
@@ -24,6 +25,10 @@ export default async function ArticulosPage() {
 
   return (
     <DefaultLayout>
+      <PageHeader
+        title="Artículos"
+        subtitle="Listado desde SQL Server."
+      />
       <div className="mb-6">
         <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">Artículos</h2>
         <p className="text-sm text-gray-500 dark:text-gray-400">Listado desde SQL Server.</p>
@@ -43,7 +48,7 @@ export default async function ArticulosPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead>
+            <thead className="bg-gray-50/70 dark:bg-white/[0.02]">
               <tr className="border-b border-gray-200 text-gray-500 dark:border-gray-800 dark:text-gray-400">
                 <th className="py-3 pr-4 text-xs font-medium">FAMILIA</th>
                 <th className="py-3 pr-4 text-xs font-medium">CLASE</th>

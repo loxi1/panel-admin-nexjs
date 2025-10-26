@@ -41,7 +41,7 @@ export default async function UsuariosPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead>
+            <thead className="bg-gray-50/70">
               <tr className="border-b border-gray-200 text-gray-500 dark:border-gray-800 dark:text-gray-400">
                 <th className="py-3 pr-4 text-xs font-medium">CÓDIGO</th>
                 <th className="py-3 pr-4 text-xs font-medium">NOMBRE</th>

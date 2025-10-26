@@ -5,13 +5,17 @@ import Backdrop from "./Backdrop";
 
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
-      <AppSidebar />
-      <Backdrop />
-      <div className="flex-1">
+    <div className="flex">
+      <div className="w-64 shrink-0">
+        <AppSidebar />
+      </div>
+      <div className="min-h-screen flex-1">
         <AppHeader />
-        <main className="p-6 xl:p-10">{children}</main>
+        <main className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6">
+          {children}
+        </main>
       </div>
     </div>
   );
 }
+

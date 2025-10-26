@@ -3,6 +3,7 @@
 import React from "react";
 import { useSidebar } from "@/context/SidebarContext";
 import { useTheme } from "@/context/ThemeContext";
+import LogoutButton from "@/components/auth/LogoutButtom";
 
 export default function AppHeader() {
   const { toggleSidebar, toggleMobileSidebar } = useSidebar();
@@ -18,9 +19,9 @@ export default function AppHeader() {
           Menu
         </button>
       </div>
-      <button className="rounded-lg border px-3 py-2 dark:border-gray-700" onClick={toggleTheme}>
-        Tema
-      </button>
+      <div className="flex items-center gap-3">
+        <LogoutButton />
+      </div>
     </header>
   );
 }
