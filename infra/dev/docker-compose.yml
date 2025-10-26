@@ -1,0 +1,15 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: dev-mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Smart2052!"
+      MSSQL_PID: "Express"
+    ports:
+      - "11433:1433"
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Smart2052!" -C -Q "SELECT 1" || exit 1
+      interval: 5s
+      timeout: 3s
+      retries: 30
