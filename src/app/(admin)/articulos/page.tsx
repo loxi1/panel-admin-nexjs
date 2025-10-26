@@ -1,9 +1,20 @@
-// src/app/(admin)/articulos/page.tsx
 import DefaultLayout from "@/layout/DefaultLayout";
+import { headers } from "next/headers";
 
 async function getData() {
-  // ✅ relative path => Next envía cookies al API y evita HTML/redirects
-  const r = await fetch("/api/articulos", { cache: "no-store" });
+  const h = await headers();
+  const host = h.get("host")!;
+  // Si estás en Vercel u otro proxy pon HTTPS; en local usa HTTP
+  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
+  const base = `${proto}://${host}`;
+
+  const r = await fetch(`${base}/api/articulos`, {
+    cache: "no-store",
+    headers: {
+      // reenviamos cookie para que la middleware/route te identifique
+      cookie: h.get("cookie") ?? "",
+    },
+  });
   if (!r.ok) return [];
   return r.json();
 }
@@ -20,9 +31,7 @@ export default async function ArticulosPage() {
 
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {rows.length} resultado(s)
-          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{rows.length} resultado(s)</div>
           <div className="relative w-full sm:w-72">
             <input
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-4 ring-brand-500/20 dark:border-gray-700 dark:bg-transparent dark:text-white"

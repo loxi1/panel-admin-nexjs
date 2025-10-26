@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 import { LayoutDashboard, Users, Boxes } from "lucide-react";
 
 // --- Íconos ligeros (SVG inline) ---
@@ -158,8 +157,6 @@ const AppSidebar: React.FC = () => {
       <nav className="p-4 overflow-y-auto">
         {renderMenuItems(navItems, "main")}
       </nav>
-
-      {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
     </aside>
   );
 };

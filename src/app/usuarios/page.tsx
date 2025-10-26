@@ -1,8 +1,18 @@
 import DefaultLayout from "@/layout/DefaultLayout";
+import { headers } from "next/headers";
 
 async function getData() {
-  // ✅ relative path para que se envíen cookies al API
-  const r = await fetch("/api/usuarios", { cache: "no-store" });
+  const h = await headers();
+  const host = h.get("host")!;
+  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
+  const base = `${proto}://${host}`;
+
+  const r = await fetch(`${base}/api/usuarios`, {
+    cache: "no-store",
+    headers: {
+      cookie: h.get("cookie") ?? "",
+    },
+  });
   if (!r.ok) return [];
   return r.json();
 }
@@ -19,9 +29,7 @@ export default async function UsuariosPage() {
 
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {rows.length} usuario(s)
-          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{rows.length} usuario(s)</div>
           <div className="relative w-full sm:w-72">
             <input
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-4 ring-brand-500/20 dark:border-gray-700 dark:bg-transparent dark:text-white"
@@ -49,14 +57,18 @@ export default async function UsuariosPage() {
                   <td className="py-3 pr-4 text-sm text-gray-800 dark:text-gray-200">
                     {u.name ?? `${u.PRIMER_NOMBRE ?? ""} ${u.APELLIDO_PATERNO ?? ""}`.trim()}
                   </td>
-                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{u.email ?? u.CORREO_ELECTRONICO}</td>
+                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">
+                    {u.email ?? u.CORREO_ELECTRONICO}
+                  </td>
                   <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{u.rol ?? u.rol_id ?? "-"}</td>
                   <td className="py-3 pr-4 text-sm">
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
-                      (u.COD_ESTADO_REGISTRO ?? 1) === 1
-                        ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300"
-                        : "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300"
-                    }`}>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
+                        (u.COD_ESTADO_REGISTRO ?? 1) === 1
+                          ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300"
+                          : "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300"
+                      }`}
+                    >
                       {(u.COD_ESTADO_REGISTRO ?? 1) === 1 ? "Activo" : "Inactivo"}
                     </span>
                   </td>
