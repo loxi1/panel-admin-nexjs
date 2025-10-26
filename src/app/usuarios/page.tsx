@@ -1,62 +1,76 @@
-// src/app/usuarios/page.tsx
 import DefaultLayout from "@/layout/DefaultLayout";
-import { cookies } from "next/headers";
 
-async function getUsuarios() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const cookieStore = await cookies();
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
-  const res = await fetch(`${base}/api/usuarios`, {
-    headers: { Cookie: cookieHeader },
+async function getData() {
+  const r = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/api/usuarios`, {
     cache: "no-store",
   });
-
-  const ct = res.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) {
-    throw new Error("Respuesta no JSON (probable redirección por autenticación).");
-  }
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`API /usuarios ${res.status}: ${txt}`);
-  }
-  return res.json();
+  if (!r.ok) return [];
+  return r.json();
 }
 
 export default async function UsuariosPage() {
-  const data = await getUsuarios();
+  const rows: any[] = await getData();
 
   return (
     <DefaultLayout>
-      <h1 className="mb-6 text-2xl font-semibold text-gray-800 dark:text-white">Usuarios</h1>
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">Usuarios</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Listado de usuarios del sistema.</p>
+      </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 dark:bg-white/[0.04] dark:text-gray-300">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium">Código</th>
-              <th className="px-4 py-3 text-left font-medium">Nombre</th>
-              <th className="px-4 py-3 text-left font-medium">Correo</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {data.map((u: any) => {
-              const nombre = [u.PRIMER_NOMBRE, u.SEGUNDO_NOMBRE, u.APELLIDO_PATERNO, u.APELLIDO_MATERNO]
-                .filter(Boolean)
-                .join(" ");
-              return (
-                <tr key={u.COD_USUARIO} className="hover:bg-gray-50/60 dark:hover:bg-white/5">
-                  <td className="px-4 py-3 font-mono">{u.COD_USUARIO}</td>
-                  <td className="px-4 py-3">{nombre}</td>
-                  <td className="px-4 py-3">{u.CORREO_ELECTRONICO}</td>
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {rows.length} usuario(s)
+          </div>
+          <div className="relative w-full sm:w-72">
+            <input
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-4 ring-brand-500/20 dark:border-gray-700 dark:bg-transparent dark:text-white"
+              placeholder="Buscar por código, nombre, email…"
+            />
+            <span className="pointer-events-none absolute right-3 top-2.5 text-gray-400">⌘K</span>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-gray-200 text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                <th className="py-3 pr-4 text-xs font-medium">CÓDIGO</th>
+                <th className="py-3 pr-4 text-xs font-medium">NOMBRE</th>
+                <th className="py-3 pr-4 text-xs font-medium">EMAIL</th>
+                <th className="py-3 pr-4 text-xs font-medium">ROL</th>
+                <th className="py-3 pr-4 text-xs font-medium">ESTADO</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              {rows.map((u) => (
+                <tr key={u.COD_USUARIO}>
+                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{u.COD_USUARIO}</td>
+                  <td className="py-3 pr-4 text-sm text-gray-800 dark:text-gray-200">{u.name ?? `${u.PRIMER_NOMBRE ?? ""} ${u.APELLIDO_PATERNO ?? ""}`.trim()}</td>
+                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{u.email ?? u.CORREO_ELECTRONICO}</td>
+                  <td className="py-3 pr-4 text-sm text-gray-700 dark:text-gray-300">{u.rol ?? u.rol_id ?? "-"}</td>
+                  <td className="py-3 pr-4 text-sm">
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
+                      (u.COD_ESTADO_REGISTRO ?? 1) === 1
+                        ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-300"
+                        : "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300"
+                    }`}>
+                      {(u.COD_ESTADO_REGISTRO ?? 1) === 1 ? "Activo" : "Inactivo"}
+                    </span>
+                  </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                    Sin usuarios.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </DefaultLayout>
   );

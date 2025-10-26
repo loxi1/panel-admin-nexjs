@@ -1,68 +1,166 @@
-// src/app/(admin)/articulos/page.tsx
-import DefaultLayout from "@/layout/DefaultLayout";
-import { cookies } from "next/headers";
+"use client";
 
-async function getArticulos() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const cookieStore = await cookies();
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSidebar } from "@/context/SidebarContext";
+import SidebarWidget from "./SidebarWidget";
 
-  const res = await fetch(`${base}/api/articulos`, {
-    headers: { Cookie: cookieHeader },
-    cache: "no-store",
-  });
+// --- Íconos ligeros (SVG inline) ---
+const DashboardIcon = (
+  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <path d="M3 13h8V3H3v10zM13 21h8v-6h-8v6zM13 3v8h8V3h-8zM3 21h8v-6H3v6z" />
+  </svg>
+);
 
-  // Si el middleware te redirige, la respuesta NO es JSON
-  const ct = res.headers.get("content-type") || "";
-  if (!ct.includes("application/json")) {
-    throw new Error("Respuesta no JSON (probable redirección por autenticación).");
-  }
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`API /articulos ${res.status}: ${txt}`);
-  }
-  return res.json();
-}
+const UsersIcon = (
+  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <path d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
 
-export default async function ArticulosPage() {
-  const data = await getArticulos();
+const BoxesIcon = (
+  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+    <path d="M7.5 4.21L12 6.5l4.5-2.29M12 6.5v11" />
+  </svg>
+);
+
+// --- Tipado ---
+type NavItem = {
+  name: string;
+  icon?: React.ReactNode;         // 👈 ahora es opcional
+  path?: string;
+  badge?: string;
+  subItems?: { name: string; path: string }[];
+};
+
+// --- Menú principal ---
+const navItems: NavItem[] = [
+  { name: "Dashboard", path: "/dashboard", icon: DashboardIcon },
+  { name: "Usuarios", path: "/usuarios", icon: UsersIcon },
+  { name: "Artículos", path: "/articulos", icon: BoxesIcon },
+];
+
+const AppSidebar: React.FC = () => {
+  const pathname = usePathname();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const [openSubmenu, setOpenSubmenu] = useState<{ type: "main" | "others"; index: number } | null>(null);
+  const subMenuRefs = useRef<Record<string, HTMLUListElement | null>>({});
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
+
+  const isActive = (href: string) => pathname === href;
+
+  useEffect(() => { setOpenSubmenu(null); }, [pathname]);
+
+  useEffect(() => {
+    if (openSubmenu !== null) {
+      const key = `${openSubmenu.type}-${openSubmenu.index}`;
+      const el = subMenuRefs.current[key];
+      if (el) setSubMenuHeight((prev) => ({ ...prev, [key]: el.scrollHeight }));
+    }
+  }, [openSubmenu]);
+
+  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
+    setOpenSubmenu((prev) =>
+      prev && prev.type === menuType && prev.index === index ? null : { type: menuType, index }
+    );
+  };
+
+  const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
+    <ul className="space-y-1">
+      {items.map((nav, index) => (
+        <li key={`${menuType}-${nav.name}`}>
+          {nav.subItems ? (
+            <>
+              <button
+                onClick={() => handleSubmenuToggle(index, menuType)}
+                className={`menu-item group w-full text-left ${
+                  openSubmenu?.type === menuType && openSubmenu?.index === index
+                    ? "menu-item-active"
+                    : "menu-item-inactive"
+                }`}
+              >
+                {nav.icon ? <span className="menu-item-icon">{nav.icon}</span> : null}
+                <span className="menu-item-text">{nav.name}</span>
+                <span
+                  className={`menu-item-arrow ${
+                    openSubmenu?.type === menuType && openSubmenu?.index === index
+                      ? "menu-item-arrow-active"
+                      : "menu-item-arrow-inactive"
+                  }`}
+                >
+                  ▼
+                </span>
+              </button>
+              <ul
+                ref={(el) => (subMenuRefs.current[`${menuType}-${index}`] = el)}
+                className="overflow-hidden transition-all duration-300 ease-in-out"
+                style={{
+                  height:
+                    openSubmenu?.type === menuType && openSubmenu?.index === index
+                      ? `${subMenuHeight[`${menuType}-${index}`] || "auto"}px`
+                      : "0px",
+                }}
+              >
+                {nav.subItems.map((sub) => (
+                  <li key={sub.path}>
+                    <Link
+                      href={sub.path}
+                      className={`menu-dropdown-item ${
+                        isActive(sub.path) ? "menu-dropdown-item-active" : "menu-dropdown-item-inactive"
+                      }`}
+                    >
+                      {sub.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <Link
+              href={nav.path || "#"}
+              className={`menu-item group ${
+                isActive(nav.path || "") ? "menu-item-active" : "menu-item-inactive"
+              }`}
+            >
+              {nav.icon ? <span className="menu-item-icon">{nav.icon}</span> : null}
+              <span className="menu-item-text">{nav.name}</span>
+              {nav.badge && (
+                <span
+                  className={`menu-dropdown-badge ${
+                    isActive(nav.path || "") ? "menu-dropdown-badge-active" : "menu-dropdown-badge-inactive"
+                  }`}
+                >
+                  {nav.badge}
+                </span>
+              )}
+            </Link>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
-    <DefaultLayout>
-      <h1 className="mb-6 text-2xl font-semibold text-gray-800 dark:text-white">Artículos</h1>
-
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <table className="min-w-[960px] w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 dark:bg-white/[0.04] dark:text-gray-300">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium">Fam</th>
-              <th className="px-4 py-3 text-left font-medium">Clase</th>
-              <th className="px-4 py-3 text-left font-medium">Subclase</th>
-              <th className="px-4 py-3 text-left font-medium">Item</th>
-              <th className="px-4 py-3 text-left font-medium">Standard</th>
-              <th className="px-4 py-3 text-left font-medium">Descripción</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {data.map((a: any) => (
-              <tr
-                key={`${a.COD_FAMILIA}-${a.COD_CLASE}-${a.COD_SUBCLASE}-${a.COD_ITEM_ARTICULO}`}
-                className="hover:bg-gray-50/60 dark:hover:bg-white/5"
-              >
-                <td className="px-4 py-3">{a.DSC_FAMILIA}</td>
-                <td className="px-4 py-3">{a.DSC_CLASE}</td>
-                <td className="px-4 py-3">{a.DSC_SUBCLASE}</td>
-                <td className="px-4 py-3 font-mono">{a.COD_ITEM_ARTICULO}</td>
-                <td className="px-4 py-3 font-mono">{a.COD_STANDARD}</td>
-                <td className="px-4 py-3">{a.DESCRIPCION_ARTICULO}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <aside
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-sm transition-transform dark:bg-[#0B1221]
+        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+    >
+      <div className="flex h-16 items-center justify-center border-b border-gray-100 dark:border-gray-800">
+        <h1 className="text-lg font-semibold text-gray-800 dark:text-white">TailAdmin</h1>
       </div>
-    </DefaultLayout>
+
+      <nav className="p-4 overflow-y-auto">
+        {renderMenuItems(navItems, "main")}
+      </nav>
+
+      {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
+    </aside>
   );
-}
+};
+
+export default AppSidebar;
