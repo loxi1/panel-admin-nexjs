@@ -6,7 +6,10 @@ import { ThemeProvider } from "@/context/ThemeContext";
 
 export const metadata: Metadata = {
   title: "Panel",
-  description: "Admin",
+  icons: {
+    icon: "/icon.svg",             // si creaste src/app/icon.svg
+    apple: "/apple-touch-icon.png" // si tienes uno para iOS (opcional)
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
