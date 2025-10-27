@@ -1,41 +1,39 @@
 // src/middleware.ts
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 const SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
-export async function middleware(req: Request) {
-  const url = new URL((req as any).url);
+export async function middleware(req: NextRequest) {
+  const { pathname, origin } = req.nextUrl;
 
   // APIs públicas de auth quedan libres
-  if (url.pathname.startsWith("/api/auth")) return NextResponse.next();
+  if (pathname.startsWith("/api/auth")) return NextResponse.next();
 
-  // Rutas protegidas
   const needsAuth =
-    url.pathname.startsWith("/dashboard") ||
-    url.pathname.startsWith("/articulos") ||
-    url.pathname.startsWith("/usuarios") ||
-    url.pathname.startsWith("/api/");
+    pathname.startsWith("/(admin)") ||
+    pathname.startsWith("/api") ||
+    pathname === "/dashboard" ||
+    pathname === "/articulos" ||
+    pathname === "/usuarios";
 
   if (!needsAuth) return NextResponse.next();
 
-  const token = (req as any).cookies.get?.("auth")?.value;
-  if (!token) return NextResponse.redirect(new URL("/login", url));
+  const token = req.cookies.get("auth")?.value;
+  if (!token) {
+    const url = new URL("/login", origin);
+    return NextResponse.redirect(url);
+  }
 
   try {
     await jwtVerify(token, new TextEncoder().encode(SECRET));
     return NextResponse.next();
   } catch {
-    return NextResponse.redirect(new URL("/login", url));
+    const url = new URL("/login", origin);
+    return NextResponse.redirect(url);
   }
 }
 
 export const config = {
-  matcher: [
-    "/(admin)/:path*",
-    "/dashboard",
-    "/usuarios",
-    "/articulos",
-    "/api/:path*",
-  ],
+  matcher: ["/(admin)/:path*", "/api/:path*", "/dashboard", "/articulos", "/usuarios"],
 };

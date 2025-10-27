@@ -1,4 +1,3 @@
-// src/app/(admin)/articulos/loading.tsx
 export default function LoadingArticulos() {
   return (
     <div className="animate-pulse space-y-4">

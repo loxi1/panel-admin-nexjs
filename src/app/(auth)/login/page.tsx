@@ -23,12 +23,15 @@ export default function LoginPage() {
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error || "Error de autenticación");
       router.replace("/dashboard"); // tu dashboard inicial
-    } catch (e: any) {
-      setErr(e.message);
-    } finally {
-      setLoading(false);
+    // en ambos
+    } catch (e: unknown) {
+      if (e instanceof Error) setErr(e.message);
+      else setErr("Ocurrió un error");
     }
-  }
+    finally {
+        setLoading(false);
+      }
+    }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#0B1221]">

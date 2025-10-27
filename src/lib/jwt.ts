@@ -1,17 +1,22 @@
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT, jwtVerify, JWTPayload } from "jose";
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-const alg = 'HS256';
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "dev-secret-change-me");
 
-export async function signJwt(payload: object, expires = process.env.JWT_EXPIRES || '1d') {
-  return await new SignJWT({ ...payload })
-    .setProtectedHeader({ alg })
+export type AppJwtPayload = JWTPayload & {
+  sub: string | number;
+  cod: string;
+  rol: string | number;
+};
+
+export async function signJwt(payload: AppJwtPayload) {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(expires)
-    .sign(secret);
+    .setExpirationTime("1d")
+    .sign(SECRET);
 }
 
-export async function verifyJwt<T = any>(token: string) {
-  const { payload } = await jwtVerify(token, secret);
-  return payload as T;
+export async function verifyJwt(token: string): Promise<AppJwtPayload> {
+  const { payload } = await jwtVerify(token, SECRET);
+  return payload as AppJwtPayload;
 }

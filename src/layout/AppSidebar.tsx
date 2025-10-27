@@ -7,27 +7,6 @@ import { useSidebar } from "@/context/SidebarContext";
 import { LayoutDashboard, Users, Boxes } from "lucide-react";
 import Image from "next/image";
 
-// --- Íconos ligeros (SVG inline) ---
-const DashboardIcon = (
-  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-    <path d="M3 13h8V3H3v10zM13 21h8v-6h-8v6zM13 3v8h8V3h-8zM3 21h8v-6H3v6z" />
-  </svg>
-);
-
-const UsersIcon = (
-  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-    <path d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-);
-
-const BoxesIcon = (
-  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-    <path d="M7.5 4.21L12 6.5l4.5-2.29M12 6.5v11" />
-  </svg>
-);
-
 // --- Tipado ---
 type NavItem = {
   name: string;
@@ -40,8 +19,8 @@ type NavItem = {
 // --- Menú principal ---
 const navItems: NavItem[] = [
   { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-  { name: "Usuarios", path: "/usuarios", icon: UsersIcon },
-  { name: "Artículos", path: "/articulos", icon: BoxesIcon },
+  { name: "Usuarios", path: "/usuarios", icon: <Users className="h-5 w-5" /> },
+  { name: "Artículos", path: "/articulos", icon: <Boxes className="h-5 w-5" /> },
 ];
 
 const AppSidebar: React.FC = () => {

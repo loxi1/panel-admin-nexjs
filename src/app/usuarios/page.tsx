@@ -1,7 +1,6 @@
 // SERVER COMPONENT
 import DefaultLayout from "@/layout/DefaultLayout";
 import PageHeader from "@/components/common/PageHeader";
-import sql from "mssql";
 import { getPool } from "@/lib/db";
 
 // Revalida cada 60s (si no necesitas “tiempo real”)

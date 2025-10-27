@@ -22,8 +22,9 @@ export default function RegisterPage() {
       if (!r.ok) throw new Error(j?.error || "No se pudo registrar");
       setOk("Contraseña establecida. Ya puedes iniciar sesión.");
       setCod(""); setPassword("");
-    } catch (e: any) {
-      setErr(e.message);
+    } catch (e: unknown) {
+      if (e instanceof Error) setErr(e.message);
+      else setErr("Ocurrió un error");
     } finally {
       setLoading(false);
     }
