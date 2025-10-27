@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import PageHeader from "@/components/common/PageHeader";
 import SmartDataTable, { type Column } from "@/components/common/SmartDataTable";
 

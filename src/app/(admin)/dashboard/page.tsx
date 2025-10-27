@@ -1,4 +1,5 @@
 // src/app/(admin)/dashboard/page.tsx
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { getPool } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth-session";
