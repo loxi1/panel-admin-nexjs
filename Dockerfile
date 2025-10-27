@@ -1,24 +1,27 @@
-# 1) deps
-FROM node:22-alpine AS deps
+# 1) Dependencias
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml* ./
 RUN corepack enable && pnpm i --frozen-lockfile
 
-# 2) build
-FROM node:22-alpine AS build
+# 2) Build
+FROM node:20-alpine AS builder
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
-# 3) run
-FROM node:22-alpine AS run
+# 3) Runner (standalone)
+FROM node:20-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/public ./public
-COPY package.json pnpm-lock.yaml ./
-COPY --from=deps /app/node_modules ./node_modules
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000
+
+# Copiamos el bundle standalone + estáticos + public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
 EXPOSE 3000
-CMD ["pnpm","start","-p","3000"]
+CMD ["node", "server.js"]

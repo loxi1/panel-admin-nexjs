@@ -1,26 +1,34 @@
-// src/app/(admin)/articulos/page.tsx
-import DefaultLayout from "@/layout/DefaultLayout";
 import PageHeader from "@/components/common/PageHeader";
-import SmartDataTable from "@/components/common/SmartDataTable";
+import SmartDataTable, { type Column } from "@/components/common/SmartDataTable";
+
+// Fila tal como la devuelve tu /api/articulos (en MAYÚSCULAS)
+type Articulo = {
+  COD_ITEM_ARTICULO: number;
+  DSC_FAMILIA: string;
+  DSC_CLASE: string;
+  DESCRIPCION_ARTICULO: string;
+  COD_STANDARD: string | null;
+};
 
 export default function ArticulosPage() {
+  const columns: Column<Articulo>[] = [
+    { key: "COD_ITEM_ARTICULO", label: "Código" },
+    { key: "DSC_FAMILIA", label: "Familia" },
+    { key: "DSC_CLASE", label: "Clase" },
+    { key: "DESCRIPCION_ARTICULO", label: "Descripción" },
+    { key: "COD_STANDARD", label: "Standard" },
+  ];
+
   return (
     <>
       <PageHeader
         title="Artículos"
         subtitle="Listado general con búsqueda, paginación y exportación."
       />
-      <SmartDataTable
+      <SmartDataTable<Articulo>
         apiUrl="/api/articulos"
         title="Artículos"
-        columns={[
-          { key: "cod_item_articulo", label: "Código" },
-          { key: "dsc_familia", label: "Familia" },
-          { key: "dsc_clase", label: "Clase" },
-          { key: "dsc_subclase", label: "Subclase" },
-          { key: "cod_standard", label: "Standard" },
-          { key: "descripcion", label: "Descripción" },
-        ]}
+        columns={columns}
       />
     </>
   );
