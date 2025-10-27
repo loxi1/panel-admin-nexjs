@@ -1,7 +1,14 @@
+# Node/Next
 node_modules
 .next
-.git
-Dockerfile*
-docker-compose*.yml
-.env*
 *.log
+
+# Varios
+.git
+.gitignore
+.vscode
+README.md
+
+# Entornos
+.env*
+!/.env.production  # deja solo el de prod si quieres
