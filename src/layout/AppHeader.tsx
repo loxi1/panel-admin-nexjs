@@ -4,7 +4,11 @@ import LogoutButton from "@/components/auth/LogoutButtom";
 import ThemeToggleButton from "@/components/common/ThemeToggleButton";
 import { useSidebar } from "@/context/SidebarContext";
 
-export default function AppHeader() {
+type Props = {
+  userCod?: string | null;
+};
+
+export default function AppHeader( { userCod }:Props) {
   const { toggleMobileSidebar } = useSidebar();
 
   return (
@@ -23,7 +27,9 @@ export default function AppHeader() {
         </button>
 
         {/* Marca */}
-        <div className="font-semibold text-gray-800 dark:text-white">ARASAC</div>
+        <div className="font-semibold text-gray-800 dark:text-white">{userCod ? (
+            userCod
+          ) : null}</div>
 
         {/* Acciones derechas */}
         <div className="flex items-center gap-3">

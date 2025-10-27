@@ -45,7 +45,11 @@ export async function POST(req: Request) {
   ].filter(Boolean).join(' ');
 
   // sub = COD_USUARIO como identificador
-  const token = await signJwt({ sub: u.COD_USUARIO, cod: u.COD_USUARIO });
+  const token = await signJwt({
+    sub: u.COD_USUARIO,
+    cod: u.COD_USUARIO,
+    rol: u.ROL_ID ?? "user",
+  });
 
   // cookie httpOnly
   await setAuthCookie(token);

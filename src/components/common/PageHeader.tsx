@@ -9,6 +9,7 @@ export default function PageHeader({
   title: string;
   subtitle?: string;
   right?: React.ReactNode;
+  actions?: React.ReactNode;
 }) {
   return (
     <div className="mb-6 flex items-center justify-between">

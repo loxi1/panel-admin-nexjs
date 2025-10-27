@@ -21,8 +21,11 @@
     "autoprefixer": "^10.4.20",
     "bcryptjs": "^3.0.2",
     "cookie": "^1.0.2",
+    "file-saver": "^2.0.5",
     "flatpickr": "^4.6.13",
     "jose": "^6.1.0",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.548.0",
     "mssql": "^12.0.0",
     "next": "15.2.3",
@@ -33,11 +36,13 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.5",
     "swiper": "^11.2.0",
-    "tailwind-merge": "^2.6.0"
+    "tailwind-merge": "^2.6.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@svgr/webpack": "^8.1.0",
+    "@types/file-saver": "^2.0.7",
     "@types/mssql": "^9.1.8",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -51,6 +56,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "core-js",
       "sharp",
       "unrs-resolver"
     ]
