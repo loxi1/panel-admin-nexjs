@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
   const { pathname, origin } = req.nextUrl;
 
   // APIs públicas de auth quedan libres
-  if (pathname.startsWith("/api/auth") || pathname.startsWith("/api/health") ) return NextResponse.next();
+  if (pathname.startsWith("/api/auth") || pathname.startsWith("/api/health") || pathname.startsWith("/api/db-ping") ) return NextResponse.next();
 
   const needsAuth =
     pathname.startsWith("/(admin)") ||
