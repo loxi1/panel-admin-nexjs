@@ -38,4 +38,4 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
   CMD curl -fsS http://localhost:3000/api/health || exit 1
 
 # 👇 ARRANCA EL SERVER DEL BUNDLE STANDALONE EN 0.0.0.0
-CMD ["node", "server.js", "--hostname", "0.0.0.0", "--port", "3000"]
+CMD ["node", "server.js"]
