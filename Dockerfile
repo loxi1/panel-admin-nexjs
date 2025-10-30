@@ -33,5 +33,4 @@ COPY --from=builder /app/public ./public
 EXPOSE 3000
 
 # IMPORTANTE: usa variables, no flags (algunos server.js los ignoran)
-ENV HOST=0.0.0.0
-ENV PORT=3000
+CMD ["node", "server.js", "--hostname", "0.0.0.0", "--port", "3000"]
