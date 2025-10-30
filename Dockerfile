@@ -5,7 +5,6 @@ FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
-# Habilitar pnpm y usar la misma versión en todos los stages
 RUN corepack enable && corepack prepare pnpm@9.10.0 --activate
 RUN pnpm install --frozen-lockfile
 
@@ -14,11 +13,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN apk add --no-cache libc6-compat
-# Activar pnpm también aquí
 RUN corepack enable && corepack prepare pnpm@9.10.0 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# IMPORTANTE: tus páginas dinámicas deben tener `export const dynamic = "force-dynamic";`
+# Si tienes rutas dinámicas, recuerda: export const dynamic = "force-dynamic";
 RUN pnpm build
 
 # ---- runtime ----
@@ -28,14 +26,16 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN apk add --no-cache curl
 
-# Copiar solo lo necesario para producción
+# Solo lo necesario para producción
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 EXPOSE 3000
 
+# Healthcheck contra tu endpoint público
 HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
   CMD curl -fsS http://localhost:3000/api/health || exit 1
 
-CMD ["pnpm", "start", "--", "--hostname", "0.0.0.0"]
+# 👇 ARRANCA EL SERVER DEL BUNDLE STANDALONE EN 0.0.0.0
+CMD ["node", "server.js", "--hostname", "0.0.0.0", "--port", "3000"]
