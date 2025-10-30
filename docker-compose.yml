@@ -8,7 +8,7 @@ services:
       - "3000:3000"
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "curl", "-fsS", "http://localhost:3000/api/health" ]
+      test: [ "CMD-SHELL", "IP=$(hostname -i) && curl -fsS http://$IP:3000/api/health || exit 1" ]
       interval: 10s
       timeout: 3s
       retries: 5
