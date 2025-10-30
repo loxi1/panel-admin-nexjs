@@ -5,17 +5,9 @@ services:
     env_file:
       - .env.production
     environment:
-      HOST: "0.0.0.0" # decorativo; el arranque real lo dicta el CMD
+      HOST: "0.0.0.0" # decorativo
       PORT: "3000"
     ports:
       - "3000:3000"
     restart: unless-stopped
     command: [ "node", "server.js", "--hostname", "0.0.0.0", "--port", "3000" ]
-
-    # 👇 Healthcheck que usa la IP real del contenedor
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -fsS http://$(hostname -i):3000/api/health || exit 1" ]
-      interval: 10s
-      timeout: 3s
-      retries: 10
-      start_period: 40s
