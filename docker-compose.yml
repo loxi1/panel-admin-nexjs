@@ -4,6 +4,9 @@ services:
     container_name: panel-admin
     env_file:
       - .env.production
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3000"
     ports:
       - "3000:3000"
     restart: unless-stopped
